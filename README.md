@@ -9,4 +9,5 @@ When a user adds song to a specific playlist ("new"), add it to "main" playlist 
     `pipx install poetry`
 2. Install dependencies with \
    `poetry install`
-
+3. Run the setup script from root directory and follow the prompt \
+    `py setup.py`
