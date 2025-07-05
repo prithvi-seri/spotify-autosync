@@ -2,10 +2,12 @@ from dotenv import load_dotenv
 from os import getenv
 from base64 import b64encode
 from datetime import datetime, timezone, timedelta
+from pathlib import Path
 import requests
 import json
 import webbrowser
 
+from storage import Storage
 from config import (
 	SPOTIFY_ACCOUNTS_BASE_URL,
 	REDIRECT_URI,
@@ -20,6 +22,8 @@ AUTH_HEADERS = {
   'Content-Type': 'application/x-www-form-urlencoded',
   'Authorization': f'Basic {b64encode(f'{CLIENT_ID}:{CLIENT_SECRET}'.encode()).decode()}'
 }
+
+storage = Storage(TOKEN_FILE)
 
 def handle_response(response_object: requests.Response) -> dict | None:
 	if 'application/json' not in response_object.headers.get('content-type', ''):
@@ -76,12 +80,10 @@ def store_token(token: dict):
 		old_token = retrieve_token()
 		token['refresh_token'] = old_token['refresh_token']
 
-	with open(TOKEN_FILE, 'w') as token_file:
-		json.dump(token, token_file, indent=2)
+	storage.store(token)
 
 def retrieve_token() -> dict:
-	with open(TOKEN_FILE) as token_file:
-		return json.load(token_file)
+		return json.loads(storage.get())
 	
 def get_access_token() -> dict:
 	token = retrieve_token()
