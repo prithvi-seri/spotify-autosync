@@ -83,7 +83,7 @@ def store_token(token: dict):
 	storage.store(token)
 
 def retrieve_token() -> dict:
-		return json.loads(storage.get())
+		return json.loads(storage.retrieve())
 	
 def get_access_token() -> dict:
 	token = retrieve_token()

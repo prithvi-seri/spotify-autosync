@@ -8,8 +8,8 @@ class Storage:
     self.file = storage_dir / filename
     if not self.file.exists(): self.file.write_text('')   # Create file if needed
 
-def store(self, data: str):
-  return self.file.write_text(data)
+  def store(self, data: str) -> int:
+    return self.file.write_text(data)
 
-def retrieve(self) -> str:
-  return self.file.read_text()
+  def retrieve(self) -> str:
+    return self.file.read_text()
