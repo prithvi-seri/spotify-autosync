@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 from os import getenv
 from base64 import b64encode
+from datetime import datetime, timezone, timedelta
 import requests
 import json
 import webbrowser
@@ -21,7 +22,7 @@ AUTH_HEADERS = {
 }
 
 def handle_response(response_object: requests.Response) -> dict | None:
-	if 'application/json' not in response_object.headers.get('content-type'):
+	if 'application/json' not in response_object.headers.get('content-type', ''):
 		print(f'Status Code {response_object.status_code}: {response_object.reason}')
 		return
 	
@@ -56,7 +57,7 @@ def get_access_token_with_auth_code(auth_code: str):
 	response = requests.post(f'{SPOTIFY_BASE_URL}/api/token', data=body, headers=AUTH_HEADERS)
 	return handle_response(response)
 
-def get_access_token():
+def refresh_access_token():
 	tokens = retrieve_tokens()
 	body = {
 		'grant_type': 'refresh_token',
@@ -70,11 +71,19 @@ def store_tokens(tokens: dict):
 	if 'refresh_token' not in tokens:
 		old_tokens = retrieve_tokens()
 		tokens['refresh_token'] = old_tokens['refresh_token']
+		expires_at = datetime.now(timezone.utc) + timedelta(tokens['expires_in'])
+		tokens['expires_at'] = expires_at.isoformat()
 
 	with open(TOKEN_FILE, 'w') as token_file:
 		json.dump(tokens, token_file, indent=2)
 
 def retrieve_tokens() -> dict:
-	with open(TOKEN_FILE, 'r') as token_file:
+	with open(TOKEN_FILE) as token_file:
 		return json.load(token_file)
 	
+def get_access_token():
+	tokens = retrieve_tokens()
+	expires_at = datetime.fromisoformat(tokens['expires_at'])
+	if expires_at < datetime.now(timezone.utc) + timedelta(60):
+		return refresh_access_token()
+	return tokens['access_token']
