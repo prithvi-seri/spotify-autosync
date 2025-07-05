@@ -21,7 +21,7 @@ AUTH_HEADERS = {
   'Authorization': f'Basic {b64encode(f'{CLIENT_ID}:{CLIENT_SECRET}'.encode()).decode()}'
 }
 
-def _handle_response(response_object: requests.Response) -> dict | None:
+def _handle_response(response_object: requests.Response) -> str | None:
 	if 'application/json' not in response_object.headers.get('content-type', ''):
 		print(f'Status Code {response_object.status_code}: {response_object.reason}')
 		return
@@ -32,7 +32,7 @@ def _handle_response(response_object: requests.Response) -> dict | None:
 		return
 	
 	_store_token(response)
-	return response
+	return response['access_token']
 
 def _get_auth_code() -> str:
 	scopes = ['playlist-read-private', 'playlist-modify-public', 'user-library-read']
@@ -48,7 +48,7 @@ def _get_auth_code() -> str:
 	# User must follow link and allow access to Spotify; authorization code
 	# will be in redirect URL and must be added to .env as AUTH_CODE
 
-def _get_access_token_with_auth_code(auth_code: str):
+def _get_access_token_with_auth_code(auth_code: str) -> str | None:
 	body = {
 		'grant_type': 'authorization_code',
 		'code': auth_code,
@@ -57,7 +57,7 @@ def _get_access_token_with_auth_code(auth_code: str):
 	response = requests.post(f'{SPOTIFY_ACCOUNTS_BASE_URL}/api/token', data=body, headers=AUTH_HEADERS)
 	return _handle_response(response)
 
-def _refresh_access_token():
+def _refresh_access_token() -> str | None:
 	token = retrieve('token')
 	body = {
 		'grant_type': 'refresh_token',
@@ -66,7 +66,7 @@ def _refresh_access_token():
 	response = requests.post(f'{SPOTIFY_ACCOUNTS_BASE_URL}/api/token', data=body, headers=AUTH_HEADERS)
 	return _handle_response(response)
 
-def _store_token(token: dict):
+def _store_token(token: dict) -> int:
 	# Add expiration time when storing token to check whether new token should be fetched
 	expires_at = datetime.now(timezone.utc) + timedelta(seconds=token['expires_in'])
 	token['expires_at'] = expires_at.isoformat()
@@ -76,12 +76,12 @@ def _store_token(token: dict):
 		old_token = retrieve('token')
 		token['refresh_token'] = old_token['refresh_token']
 
-	store('token', token)
+	return store('token', token)
 
-def setup() -> str:
+def setup() -> str | None:
 	_get_auth_code()
 	auth_code = input('Paste code from URL:\n>> ')
-	_get_access_token_with_auth_code(auth_code)
+	return _get_access_token_with_auth_code(auth_code)
 
 def get_access_token() -> str:
 	token = retrieve('token')
