@@ -1,7 +1,4 @@
 SPOTIFY_ACCOUNTS_BASE_URL = 'https://accounts.spotify.com'
 SPOTIFY_API_BASE_URL = 'https://api.spotify.com/v1'
 REDIRECT_URI = 'https://github.com/prithvi-seri'
-STORAGE_DIR = '.storage'
-TOKEN_FILE = 'token.json'
-USER_ID_FILE = 'user_id'
-PLAYLIST_DIR = '.playlists'
+STORAGE_FILEPATH = '.storage'

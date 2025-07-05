@@ -1,15 +1,18 @@
 from pathlib import Path
-from config import STORAGE_DIR
+import json
+from config import STORAGE_FILEPATH
 
-class Storage:
-  def __init__(self, filename: str):
-    storage_dir = Path(STORAGE_DIR)
-    if not storage_dir.exists(): storage_dir.mkdir(parents=True, exist_ok=True)
-    self.file = storage_dir / filename
-    if not self.file.exists(): self.file.write_text('')   # Create file if needed
+STORAGE_FILE = Path(STORAGE_FILEPATH)
+if not STORAGE_FILE.exists():
+  STORAGE_FILE.write_text('{}')   # Create file if needed
 
-  def store(self, data: str) -> int:
-    return self.file.write_text(data)
+def _load() -> dict:
+  return json.loads(STORAGE_FILE.read_text())
 
-  def retrieve(self) -> str:
-    return self.file.read_text()
+def store(key: str, value: any) -> int:
+  data = _load()
+  data[key] = value
+  return STORAGE_FILE.write_text(json.dumps(data, indent=2))
+
+def retrieve(field: str) -> str | dict | list | None:
+  return _load().get(field)

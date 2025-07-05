@@ -1,6 +1,3 @@
-from auth import get_auth_code, get_access_token_with_auth_code
-from storage import initalize_storage
+from auth import setup
 
-get_auth_code()
-auth_code = input('Paste code from URL:\n>> ')
-get_access_token_with_auth_code(auth_code)
+setup()
