@@ -1,2 +1,8 @@
-# Ignore env files
+# Ignore .env file
 .env
+
+# Ignore token-storing file
+.tokens.json
+
+# Ignore pycache
+__pycache__/
