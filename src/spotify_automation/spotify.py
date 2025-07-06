@@ -8,8 +8,12 @@ from storage import store, retrieve
 ACCESS_TOKEN = get_access_token()
 if not ACCESS_TOKEN:
     raise RuntimeError("ACCESS_TOKEN is missing or invalid. Aborting module execution.")
-HEADERS = {
+GET_HEADERS = {
   'Authorization': f'{ACCESS_TOKEN["token_type"]} {ACCESS_TOKEN["access_token"]}'
+}
+POST_HEADERS = {
+  'Authorization': f'{ACCESS_TOKEN["token_type"]} {ACCESS_TOKEN["access_token"]}',
+  'Content-Type': 'application/json'
 }
 
 def _handle_response(response_object) -> dict | None:
@@ -28,19 +32,19 @@ def _handle_response(response_object) -> dict | None:
 def get_user_id() -> str | None:
   user_id = retrieve('user_id')
   if not user_id:
-    response = _handle_response(requests.get(f'{SPOTIFY_API_BASE_URL}/me', headers=HEADERS))
+    response = _handle_response(requests.get(f'{SPOTIFY_API_BASE_URL}/me', headers=GET_HEADERS))
     user_id = response['id']
     store('user_id', user_id)
   return user_id
 
 def get_liked_songs() -> list[str] | None:
-  response_object = requests.get(f'{SPOTIFY_API_BASE_URL}/me/tracks', headers=HEADERS)
+  response_object = requests.get(f'{SPOTIFY_API_BASE_URL}/me/tracks', headers=GET_HEADERS)
   response = _handle_response(response_object)
   return response['items'] if response else None
 
 def get_playlists() -> dict[str, set]:
   # get playlists
-  response_object = requests.get(f'{SPOTIFY_API_BASE_URL}/me/playlists', headers=HEADERS)
+  response_object = requests.get(f'{SPOTIFY_API_BASE_URL}/me/playlists', headers=GET_HEADERS)
   response = _handle_response(response_object)
   if not response:
     return
@@ -56,7 +60,7 @@ def get_playlists() -> dict[str, set]:
       'offset': max(0, total_tracks - 20),
       'fields': 'items(track.id)'
     }
-    response_object = requests.get(f'{SPOTIFY_API_BASE_URL}/playlists/{playlist_id}/tracks', headers=HEADERS, params=params)
+    response_object = requests.get(f'{SPOTIFY_API_BASE_URL}/playlists/{playlist_id}/tracks', headers=GET_HEADERS, params=params)
     response = _handle_response(response_object)
     track_ids = {track_object['track']['id'] for track_object in response['items']}
     playlists[playlist_object['name']] = {
@@ -69,7 +73,7 @@ def get_playlists() -> dict[str, set]:
 def create_playlist(name: str) -> str:
   user_id = get_user_id()
   body = { 'name': name }
-  response = requests.post(f'{SPOTIFY_API_BASE_URL}/users/{user_id}/playlists', headers=HEADERS, data=body)
+  response = requests.post(f'{SPOTIFY_API_BASE_URL}/users/{user_id}/playlists', headers=POST_HEADERS, json=body)
   playlist = _handle_response(response)
   if playlist: return playlist['id']
   
@@ -77,5 +81,5 @@ def create_playlist(name: str) -> str:
 def add_to_playlist(playlist_id: str, song_ids: list[str]):
   uris = [f'spotify:track:{song_id}' for song_id in song_ids]
   body = { 'uris': uris }
-  response = requests.post(f'{SPOTIFY_API_BASE_URL}/playlists/{playlist_id}/tracks', headers=HEADERS, data=body)
+  response = requests.post(f'{SPOTIFY_API_BASE_URL}/playlists/{playlist_id}/tracks', headers=POST_HEADERS, json=body)
   _handle_response(response)
