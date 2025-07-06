@@ -9,7 +9,8 @@ import webbrowser
 from storage import store, retrieve
 from config import (
 	SPOTIFY_ACCOUNTS_BASE_URL,
-	REDIRECT_URI
+	REDIRECT_URI,
+	SCOPES
 )
 
 load_dotenv()
@@ -32,16 +33,15 @@ def _handle_response(response_object: requests.Response) -> str | None:
 		return
 	
 	_store_token(response)
-	return response['access_token']
+	return response
 
 def _get_auth_code() -> str:
-	scopes = ['playlist-read-private', 'playlist-modify-public', 'user-library-read']
 	url = (SPOTIFY_ACCOUNTS_BASE_URL
 		+ '/authorize?'
 		+ f'client_id={CLIENT_ID}'
 		+ '&response_type=code'
 		+ f'&redirect_uri={REDIRECT_URI}'
-		+ f'&scope={'%20'.join(scopes)}'
+		+ f'&scope={'%20'.join(SCOPES)}'
 	)
 	webbrowser.open(url)
 	return url
@@ -88,4 +88,4 @@ def get_access_token() -> str:
 	expires_at = datetime.fromisoformat(token['expires_at'])
 	if expires_at < datetime.now(timezone.utc) + timedelta(seconds=60):
 		return _refresh_access_token()
-	return token['access_token']
+	return token
