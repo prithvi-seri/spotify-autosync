@@ -30,7 +30,8 @@ def _add_new_songs(new_songs: dict[str, str | list[str] | None]):
     playlist_id = new_songs[playlist]['id']
     if not playlist_id:
       playlist_id = create_playlist(playlist)
-    add_to_playlist(playlist_id, new_songs[playlist]['tracks'])
+    # empty list check to avoid bad api requests
+    if new_songs[playlist]['tracks']: add_to_playlist(playlist_id, new_songs[playlist]['tracks'])
 
 def update_playlists():
   if not get_access_token() and not setup(): return   # return if no access_token found and setup fails
