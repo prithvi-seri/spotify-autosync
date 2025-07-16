@@ -1,10 +1,16 @@
 on:
   push:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      test:
+        description: "Any value"
+        required: true
+        default: "No value provided"
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: test
-        run: echo "test job"
+    - name: test
+      run: echo "Input- ${{ github.event.inputs.test }}"
