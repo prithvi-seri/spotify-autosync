@@ -8,50 +8,44 @@ jobs:
     runs-on: ubuntu-latest
     environment: 'AWS Lambda Deployment Workflow'
     steps:
-    # - name: Checkout code
-    #   uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-    # - name: Set up Python
-    #   uses: actions/setup-python@v4
-    #   with:
-    #     python-version: '3.12'
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
 
-    # - name: Install Poetry
-    #   run: |
-    #     curl -sSL https://install.python-poetry.org | python3 -
-    #     echo "$HOME/.local/bin" >> $GITHUB_PATH
+    - name: Install Poetry
+      run: |
+        curl -sSL https://install.python-poetry.org | python3 -
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-    # - name: Install poetry-plugin-export
-    #   run: poetry self add poetry-plugin-export
+    - name: Install poetry-plugin-export
+      run: poetry self add poetry-plugin-export
 
-    # - name: Export dependencies
-    #   run: poetry export -f requirements.txt --without-hashes --output requirements.txt
+    - name: Export dependencies
+      run: poetry export -f requirements.txt --without-hashes --output requirements.txt
 
-    # - name: Install dependencies to local folder for Lambda
-    #   run: |
-    #     pip install -r requirements.txt -t lambda-package
-    #     cp -r spotify_automation lambda-package/
+    - name: Install dependencies to local folder for Lambda
+      run: |
+        pip install -r requirements.txt -t lambda-package
+        cp -r spotify_automation lambda-package/
 
-    # - name: Zip package
-    #   run: |
-    #     cd lambda-package
-    #     zip -r ../spotify_automation.zip .
+    - name: Zip package
+      run: |
+        cd lambda-package
+        zip -r ../spotify_automation.zip .
 
-    - name: Test region var
-      run: echo ${{ vars.AWS_REGION }}
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ vars.AWS_REGION }}
 
-    - name: Print env
-      run: env
-
-    # - name: Configure AWS credentials
-    #   uses: aws-actions/configure-aws-credentials@v2
-    #   with:
-    #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-    #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    #     aws-region: ${{ env.AWS_REGION }}
-
-    # - name: Deploy to Lambda
-    #   run: |
-    #     aws lambda update-function-code \
-    #       --function-name spotifyAutomation \
-    #       --zip-file fileb://spotify_automation.zip
+    - name: Deploy to Lambda
+      run: |
+        aws lambda update-function-code \
+          --function-name spotifyAutomation \
+          --zip-file fileb://spotify_automation.zip
