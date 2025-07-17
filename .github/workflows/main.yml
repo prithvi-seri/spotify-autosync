@@ -36,8 +36,11 @@ jobs:
     #     cd lambda-package
     #     zip -r ../spotify_automation.zip .
 
-    - name: Test env
+    - name: Test region var
       run: echo ${{ vars.AWS_REGION }}
+
+    - name: Print env
+      run: env
 
     # - name: Configure AWS credentials
     #   uses: aws-actions/configure-aws-credentials@v2
