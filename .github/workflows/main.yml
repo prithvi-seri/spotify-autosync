@@ -33,7 +33,7 @@ jobs:
 
     - name: Zip package
       run: |
-        cd lambda-package3
+        cd lambda-package
         zip -r ../spotify_automation.zip .
 
     - name: Configure AWS credentials
