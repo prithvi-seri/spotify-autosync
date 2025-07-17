@@ -2,15 +2,44 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
-    inputs:
-      test:
-        description: "Any value"
-        required: true
-        default: "No value provided"
 
 jobs:
-  test:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-    - name: test
-      run: echo "Input- ${{ github.event.inputs.test }}"
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+
+    - name: Install Poetry
+      run: curl -sSL https://install.python-poetry.org | python3
+
+    - name: Export dependencies
+      run: poetry export -f requirements.txt --without-hashes --output requirements.txt
+
+    - name: Install dependencies to local folder for Lambda
+      run: |
+        pip install -r requirements.txt -t lambda-package
+        cp -r spotify_automation lambda-package/
+
+    - name: Zip package
+      run: |
+        cd lambda-package3
+        zip -r ../spotify_automation.zip .
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ vars.AWS_REGION }}
+
+    - name: Deploy to Lambda
+      run: |
+        aws lambda update-function-code \
+          --function-name spotifyAutomation \
+          --zip-file fileb://spotify_automation.zip
