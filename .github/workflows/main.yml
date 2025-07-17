@@ -6,6 +6,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: 'AWS Lambda Deployment Workflow'
     steps:
     # - name: Checkout code
     #   uses: actions/checkout@v3
