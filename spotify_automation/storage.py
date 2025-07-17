@@ -1,6 +1,6 @@
 from pathlib import Path
 import json
-from config import STORAGE_FILEPATH
+from .config import STORAGE_FILEPATH
 
 STORAGE_FILE = Path(STORAGE_FILEPATH)
 if not STORAGE_FILE.exists():

@@ -1,4 +1,4 @@
-from utils import monthly_playlist
+from .utils import monthly_playlist
 
 # Spotify API
 REDIRECT_URI = 'https://github.com/prithvi-seri'

@@ -1,9 +1,9 @@
 from datetime import datetime, timezone, timedelta
 from dateutil.parser import isoparse
 
-from auth import setup, get_access_token
-from spotify import get_liked_songs, get_playlists, add_to_playlist, create_playlist
-from config import NEW_MUSIC_PLAYLISTS
+from .auth import setup, get_access_token
+from .spotify import get_liked_songs, get_playlists, add_to_playlist, create_playlist
+from .config import NEW_MUSIC_PLAYLISTS
 
 def was_added_recently(time: datetime) -> bool:
   return datetime.now(timezone.utc) - isoparse(time) <= timedelta(hours=12)

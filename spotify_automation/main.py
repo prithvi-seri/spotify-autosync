@@ -1,4 +1,4 @@
-from playlists import update_playlists
+from .playlists import update_playlists
 
 def handler(event, context):
   print('working...')

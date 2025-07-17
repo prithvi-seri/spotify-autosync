@@ -6,8 +6,8 @@ import requests
 import json
 import webbrowser
 
-from storage import store, retrieve
-from config import (
+from .storage import store, retrieve
+from .config import (
 	SPOTIFY_ACCOUNTS_BASE_URL,
 	REDIRECT_URI,
 	SCOPES

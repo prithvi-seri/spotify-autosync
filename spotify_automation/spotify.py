@@ -1,9 +1,9 @@
 import requests, json
 
-from auth import get_access_token
-from config import SPOTIFY_API_BASE_URL, NEW_MUSIC_PLAYLISTS
+from .auth import get_access_token
+from .config import SPOTIFY_API_BASE_URL, NEW_MUSIC_PLAYLISTS
 
-from storage import store, retrieve
+from .storage import store, retrieve
 
 ACCESS_TOKEN = get_access_token()
 if not ACCESS_TOKEN:
