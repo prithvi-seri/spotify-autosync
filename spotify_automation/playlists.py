@@ -23,6 +23,13 @@ def _get_new_songs(liked_songs: list[str], playlists: dict[str, str | dict]) -> 
   for song in liked_songs:
     if was_added_recently(song['added_at']):
       _add_missing_songs(song['track']['id'], playlists, new_songs)
+
+  # reverse track lists (since liked songs are in reverse chronological order, but playlists should be in chronological order)
+  new_songs = {playlist: {
+    'id': new_songs[playlist]['id'],
+    'tracks': new_songs[playlist]['tracks'][::-1]
+    } for playlist in new_songs
+  }
   return new_songs
 
 def _add_new_songs(new_songs: dict[str, str | list[str] | None]):
