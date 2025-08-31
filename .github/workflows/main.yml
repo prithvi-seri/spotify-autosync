@@ -30,12 +30,12 @@ jobs:
     - name: Install dependencies to local folder for Lambda
       run: |
         pip install -r requirements.txt -t lambda-package
-        cp -r spotify_automation lambda-package/
+        cp -r spotify_autosync lambda-package/
 
     - name: Zip package
       run: |
         cd lambda-package
-        zip -r ../spotify_automation.zip .
+        zip -r ../spotify_autosync.zip .
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v2
@@ -48,4 +48,4 @@ jobs:
       run: |
         aws lambda update-function-code \
           --function-name spotifyAutomation \
-          --zip-file fileb://spotify_automation.zip
+          --zip-file fileb://spotify_autosync.zip
