@@ -7,7 +7,7 @@ SPOTIFY_ACCOUNTS_BASE_URL = 'https://accounts.spotify.com'
 SPOTIFY_API_BASE_URL = 'https://api.spotify.com/v1'
 
 # Storage
-STORAGE_FILEPATH = '.storage'
+SSM_PREFIX = '/spotify-autosync'
 
 # Python
 NEW_MUSIC_PLAYLISTS = ['new', 'main', monthly_playlist()]

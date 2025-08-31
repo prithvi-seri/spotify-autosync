@@ -41,7 +41,6 @@ def _add_new_songs(new_songs: dict[str, str | list[str] | None]):
     if new_songs[playlist]['tracks']: add_to_playlist(playlist_id, new_songs[playlist]['tracks'])
 
 def update_playlists():
-  if not get_access_token() and not setup(): return   # return if no access_token found and setup fails
   liked_songs = get_liked_songs()
   playlists = get_playlists()
   if not liked_songs or not playlists: return

@@ -5,14 +5,14 @@ from .config import SPOTIFY_API_BASE_URL, NEW_MUSIC_PLAYLISTS
 
 from .storage import store, retrieve
 
-ACCESS_TOKEN = get_access_token()
+ACCESS_TOKEN, TOKEN_TYPE = get_access_token()
 if not ACCESS_TOKEN:
     raise RuntimeError("ACCESS_TOKEN is missing or invalid. Aborting module execution.")
 GET_HEADERS = {
-  'Authorization': f'{ACCESS_TOKEN["token_type"]} {ACCESS_TOKEN["access_token"]}'
+  'Authorization': f'{TOKEN_TYPE} {ACCESS_TOKEN}'
 }
 POST_HEADERS = {
-  'Authorization': f'{ACCESS_TOKEN["token_type"]} {ACCESS_TOKEN["access_token"]}',
+  'Authorization': f'{TOKEN_TYPE} {ACCESS_TOKEN}',
   'Content-Type': 'application/json'
 }
 

@@ -1,5 +1,5 @@
 [project]
-name = "spotify_automation"
+name = "spotify_autosync"
 version = "0.1.0"
 description = "Automates organization of new music in Spotify"
 authors = [
@@ -12,7 +12,9 @@ dependencies = [
     "requests (>=2.32.4,<3.0.0)",
     "python-dotenv (>=1.1.1,<2.0.0)",
     "python-dateutil (>=2.9.0.post0,<3.0.0)",
-    "boto3 (>=1.40.21,<2.0.0)"
+    "boto3 (>=1.40.21,<2.0.0)",
+    "tzdata (>=2025.2,<2026.0)",
+    "dotenv (>=0.9.9,<0.10.0)"
 ]
 
 
@@ -22,7 +24,7 @@ build-backend = "poetry.core.masonry.api"
 
 
 [tool.setuptools]
-packages = ["spotify_automation"]
+packages = ["spotify_autosync"]
 
 [tool.setuptools.package-dir]
 "" = "src"

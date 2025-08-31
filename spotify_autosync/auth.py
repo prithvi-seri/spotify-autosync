@@ -33,9 +33,9 @@ def _handle_response(response_object: requests.Response) -> str | None:
 		return
 	
 	_store_token(response)
-	return response
+	return retrieve('access-token'), retrieve('token-type')
 
-def _get_auth_code() -> str:
+def _redirect_to_spotify_auth():
 	url = (SPOTIFY_ACCOUNTS_BASE_URL
 		+ '/authorize?'
 		+ f'client_id={CLIENT_ID}'
@@ -43,8 +43,7 @@ def _get_auth_code() -> str:
 		+ f'&redirect_uri={REDIRECT_URI}'
 		+ f'&scope={'%20'.join(SCOPES)}'
 	)
-	webbrowser.open(url)
-	return url
+	if getenv('ENV') == 'dev': webbrowser.open(url)
 	# User must follow link and allow access to Spotify; authorization code
 	# will be in redirect URL and must be added to .env as AUTH_CODE
 
@@ -58,34 +57,34 @@ def _get_access_token_with_auth_code(auth_code: str) -> str | None:
 	return _handle_response(response)
 
 def _refresh_access_token() -> str | None:
-	token = retrieve('token')
 	body = {
 		'grant_type': 'refresh_token',
-		'refresh_token': token['refresh_token']
+		'refresh_token': retrieve('refresh-token')
 	}
 	response = requests.post(f'{SPOTIFY_ACCOUNTS_BASE_URL}/api/token', data=body, headers=AUTH_HEADERS)
 	return _handle_response(response)
 
-def _store_token(token: dict) -> int:
+def _store_token(token: dict) -> dict | None:
+	# Store access token and token type
+	store('access-token', token['access_token'])
+	store('token-type', token['token_type'])
+
 	# Add expiration time when storing token to check whether new token should be fetched
 	expires_at = datetime.now(timezone.utc) + timedelta(seconds=token['expires_in'])
-	token['expires_at'] = expires_at.isoformat()
+	store('expires-at', expires_at.isoformat())
 
-	# Ensure refresh token is always stored, even if not given in Spotify response
-	if 'refresh_token' not in token:
-		old_token = retrieve('token')
-		token['refresh_token'] = old_token['refresh_token']
-
-	return store('token', token)
+	# Store new response token if given
+	if 'refresh_token' in token:
+		store('refresh-token', token['refresh_token'])
 
 def setup() -> str | None:
-	_get_auth_code()
+	_redirect_to_spotify_auth()
 	auth_code = input('Paste code from URL:\n>> ')
 	return _get_access_token_with_auth_code(auth_code)
 
 def get_access_token() -> str:
-	token = retrieve('token')
-	expires_at = datetime.fromisoformat(token['expires_at'])
+	if not retrieve('access-token'): return setup()
+	expires_at = datetime.fromisoformat(retrieve('expires-at'))
 	if expires_at < datetime.now(timezone.utc) + timedelta(seconds=60):
 		return _refresh_access_token()
-	return token
+	return retrieve('access-token'), retrieve('token-type')
