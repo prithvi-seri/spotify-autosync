@@ -9,6 +9,7 @@ SPOTIFY_API_BASE_URL = 'https://api.spotify.com/v1'
 # Storage
 SSM_PREFIX = '/spotify-autosync'
 
-# Python
-NEW_MUSIC_PLAYLISTS = ['new', 'main', monthly_playlist()]
+# AutoSync
+NEW_PLAYLIST = 'new'
+SYNCED_PLAYLISTS = ['main', monthly_playlist()]
 

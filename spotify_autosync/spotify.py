@@ -1,7 +1,7 @@
 import requests, json
 
 from .auth import get_access_token
-from .config import SPOTIFY_API_BASE_URL, NEW_MUSIC_PLAYLISTS
+from .config import SPOTIFY_API_BASE_URL, SYNCED_PLAYLISTS, NEW_PLAYLIST
 
 from .storage import store, retrieve
 
@@ -52,7 +52,8 @@ def get_playlists() -> dict[str, set]:
   # get tracks in each playlist
   playlists = {}
   for playlist_object in response['items']:
-    if playlist_object['name'] not in NEW_MUSIC_PLAYLISTS:
+    name = playlist_object['name']
+    if name not in SYNCED_PLAYLISTS and name != NEW_PLAYLIST:
       continue  # Only get tracks for playlists being updated
     playlist_id = playlist_object['id']
     total_tracks = playlist_object['tracks']['total']
@@ -83,3 +84,20 @@ def add_to_playlist(playlist_id: str, song_ids: list[str]):
   body = { 'uris': uris }
   response = requests.post(f'{SPOTIFY_API_BASE_URL}/playlists/{playlist_id}/tracks', headers=POST_HEADERS, json=body)
   _handle_response(response)
+
+def delete_from_playlist(playlist_id: str, song_ids: list[str]):
+  uris = [f'spotify:track:{song_id}' for song_id in song_ids]
+  body = {'tracks': [ { 'uri': uri } for uri in uris]}
+  response = requests.delete(f'{SPOTIFY_API_BASE_URL}/playlists/{playlist_id}/tracks', headers=POST_HEADERS, json=body)
+  _handle_response(response)
+
+def get_playlist_with_dates(playlist_id: str, offset: int = 0, limit: int = 50) -> dict | None:
+    params = {
+      'offset': offset,
+      'limit': limit,
+      'fields': 'items(added_at, track.id)'
+    }
+    response_object = requests.get(f'{SPOTIFY_API_BASE_URL}/playlists/{playlist_id}/tracks', headers=GET_HEADERS, params=params)
+    response = _handle_response(response_object)
+    if not response: return response
+    return [{'added_at': item['added_at'], 'track_id': item['track']['id']} for item in response['items']]
