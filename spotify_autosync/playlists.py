@@ -41,7 +41,7 @@ def _add_new_songs(new_songs: dict[str, str | list[str] | None]):
     # empty list check to avoid bad api requests
     if new_songs[playlist]['tracks']: add_to_playlist(playlist_id, new_songs[playlist]['tracks'])
 
-def _update_new_playlist(playlists: dict = None):
+def trim_new_playlist(playlists: dict = None):
   if not playlists: playlists = get_playlists()
   new_playlist_id = playlists[NEW_PLAYLIST]['id']
   outdated = [track['track_id'] for track in get_playlist_with_dates(new_playlist_id) if datetime.now(timezone.utc) - isoparse(track['added_at']) > timedelta(days=30)]
@@ -54,4 +54,3 @@ def update_playlists():
   if not liked_songs or not playlists: return
   new_songs = _get_new_songs(liked_songs, playlists)
   _add_new_songs(new_songs)
-  _update_new_playlist(playlists)
